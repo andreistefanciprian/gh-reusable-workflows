@@ -6,6 +6,9 @@ permissions:
 
 on:
   workflow_call:
+    inputs:
+      oci_repo_name:
+        required: true
     secrets:
       APP_NAME:
         required: true
@@ -20,8 +23,6 @@ on:
 
 jobs:
   k8s-oci-image-push-gar:
-    env:
-      OCI_REPO_NAME: "oci://${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }}/${{ secrets.PROJECT_ID }}/manifests/${{ secrets.APP_NAME }}"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -57,12 +58,12 @@ jobs:
 
       - name: Push oci image
         run: |
-          flux push artifact ${{ env.OCI_REPO_NAME }}:${{ steps.prep.outputs.BUILD_ID }} \
+          flux push artifact ${{ inputs.oci_repo_name }}:${{ steps.prep.outputs.BUILD_ID }} \
             --path="./infra/k8s" \
             --source="$(git config --get remote.origin.url)" \
             --revision="$(git branch --show-current)@sha1:$(git rev-parse HEAD)"
 
       - name: Tag oci image as latest
         run: |
-          flux tag artifact ${{ env.OCI_REPO_NAME }}:${{ steps.prep.outputs.BUILD_ID }} \
+          flux tag artifact ${{ inputs.oci_repo_name }}:${{ steps.prep.outputs.BUILD_ID }} \
             --tag latest
