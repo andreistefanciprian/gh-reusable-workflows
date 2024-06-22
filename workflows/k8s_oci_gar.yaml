@@ -1,0 +1,73 @@
+name: Push OCI to Google Artifact Registry
+
+permissions:
+  contents: read
+  id-token: write
+
+on:
+  workflow_call:
+    inputs:
+      artifact_registry_host_name:
+        required: true
+        type: string
+      project_id:
+        required: true
+        type: string
+      app_name:
+        required: true
+        type: string
+      wi_pool_provider_id:
+        required: true
+        type: string
+      packager_gsa_id:
+        required: true
+        type: string
+
+jobs:
+  k8s-oci-image-push-gar:
+    env:
+      OCI_REPO_NAME: "oci://${{ inputs.artifact_registry_host_name }}/${{ inputs.project_id }}/manifests/${{ inputs.app_name }}"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate build ID
+        id: prep
+        run: |
+          branch=${GITHUB_REF##*/}
+          sha=${GITHUB_SHA::8}
+          ts=$(date +%s)
+          echo "::set-output name=BUILD_ID::${branch}-${sha}-${ts}"   
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: '${{ inputs.wi_pool_provider_id }}'
+          service_account: '${{ inputs.packager_gsa_id }}'
+          token_format: 'access_token'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: latest
+
+      - name: Login to GCP Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ inputs.artifact_registry_host_name }} --quiet
+
+      - name: Setup Flux CLI
+        uses: fluxcd/flux2/action@main
+
+      - name: Push oci image
+        run: |
+          flux push artifact ${{ env.OCI_REPO_NAME }}:${{ steps.prep.outputs.BUILD_ID }} \
+            --path="./infra/k8s" \
+            --source="$(git config --get remote.origin.url)" \
+            --revision="$(git branch --show-current)@sha1:$(git rev-parse HEAD)"
+
+      - name: Tag oci image as latest
+        run: |
+          flux tag artifact ${{ env.OCI_REPO_NAME }}:${{ steps.prep.outputs.BUILD_ID }} \
+            --tag latest
