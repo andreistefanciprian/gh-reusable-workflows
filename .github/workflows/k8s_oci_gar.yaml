@@ -1,4 +1,4 @@
-name: Push OCI to Google Artifact Registry
+name: Push OCI to Google Artifact Registry Reusable Workflow
 
 permissions:
   contents: read
@@ -11,8 +11,6 @@ on:
         required: true
         type: string
     secrets:
-      APP_NAME:
-        required: true
       ARTIFACT_REGISTRY_HOST_NAME:
         required: true
       PROJECT_ID:
