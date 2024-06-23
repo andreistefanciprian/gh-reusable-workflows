@@ -6,7 +6,7 @@ Reusable GitHub Actions workflows
 ## .github/workflows/k8s_oci_gar.yaml
 
 This GitHub Actions reusable workflow automates pushing OCI (Open Container Initiative) images to Google Artifact Registry.
-The OCIimage is generated using `flux push artifact` command.
+The OCI image is generated using `flux push artifact` command.
 
 ##### Inputs
 
