@@ -43,3 +43,4 @@ jobs:
         file: ./infra/Dockerfile
         tags: |
           ${{ inputs.image_name }}:${{ inputs.image_tag }}
+          ${{ inputs.image_name }}:latest
