@@ -10,6 +10,9 @@ on:
       app_name:
         required: true
         type: string
+      BUILD_ID:
+        required: true
+        type: string
     secrets:
       ARTIFACT_REGISTRY_HOST_NAME:
         required: true
@@ -59,12 +62,12 @@ jobs:
 
       - name: Push oci image
         run: |
-          flux push artifact ${{ env.OCI_REPO_NAME }}:${{ steps.prep.outputs.BUILD_ID }} \
+          flux push artifact ${{ env.OCI_REPO_NAME }}:${{ inputs.BUILD_ID }} \
             --path="./infra/k8s" \
             --source="$(git config --get remote.origin.url)" \
             --revision="$(git branch --show-current)@sha1:$(git rev-parse HEAD)"
 
       - name: Tag oci image as latest
         run: |
-          flux tag artifact ${{ env.OCI_REPO_NAME }}:${{ steps.prep.outputs.BUILD_ID }} \
+          flux tag artifact ${{ env.OCI_REPO_NAME }}:${{ inputs.BUILD_ID }} \
             --tag latest
