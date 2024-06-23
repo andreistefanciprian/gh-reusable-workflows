@@ -28,7 +28,7 @@ on:
 jobs:
   build-and-push-docker-gar:
     env:
-      OCI_REPO_NAME: "oci://${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }}/${{ secrets.PROJECT_ID }}/${{ secrets.IMAGE_REPO_ID }}/${{ inputs.app_name }}"
+      IMAGE_NAME: "${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }}/${{ secrets.PROJECT_ID }}/${{ secrets.IMAGE_REPO_ID }}/${{ inputs.app_name }}"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
