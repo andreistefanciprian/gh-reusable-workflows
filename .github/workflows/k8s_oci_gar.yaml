@@ -10,7 +10,7 @@ on:
       app_name:
         required: true
         type: string
-      BUILD_ID:
+      build_id:
         required: true
         type: string
     secrets:
@@ -31,14 +31,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Generate build ID
-        id: prep
-        run: |
-          branch=${GITHUB_REF##*/}
-          sha=${GITHUB_SHA::8}
-          ts=$(date +%s)
-          echo "::set-output name=BUILD_ID::${branch}-${sha}-${ts}"
 
       - name: Authenticate to Google Cloud
         id: auth
@@ -62,12 +54,12 @@ jobs:
 
       - name: Push oci image
         run: |
-          flux push artifact ${{ env.OCI_REPO_NAME }}:${{ inputs.BUILD_ID }} \
+          flux push artifact ${{ env.OCI_REPO_NAME }}:${{ inputs.build_id }} \
             --path="./infra/k8s" \
             --source="$(git config --get remote.origin.url)" \
             --revision="$(git branch --show-current)@sha1:$(git rev-parse HEAD)"
 
       - name: Tag oci image as latest
         run: |
-          flux tag artifact ${{ env.OCI_REPO_NAME }}:${{ inputs.BUILD_ID }} \
+          flux tag artifact ${{ env.OCI_REPO_NAME }}:${{ inputs.build_id }} \
             --tag latest
