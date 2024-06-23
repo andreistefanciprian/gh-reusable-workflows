@@ -10,7 +10,7 @@ on:
       app_name:
         required: true
         type: string
-      build_id:
+      chart_version:
         required: true
         type: string
     secrets:
@@ -53,8 +53,8 @@ jobs:
           
       - name: Helm package
         run: |
-          helm package infra/${{ inputs.app_name }} --version ${{ inputs.build_id  }}
+          helm package infra/${{ inputs.app_name }} --version ${{ inputs.chart_version  }}
 
       - name: Helm push
         run: |
-          helm push ${{ inputs.app_name }}-${{ inputs.build_id  }}.tgz ${{ env.OCI_REPO_NAME }} --debug
+          helm push ${{ inputs.app_name }}-${{ inputs.chart_version  }}.tgz ${{ env.OCI_REPO_NAME }} --debug
