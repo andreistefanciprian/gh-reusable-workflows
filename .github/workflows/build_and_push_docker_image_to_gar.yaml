@@ -1,0 +1,61 @@
+name: Push Docker image to Google Artifact Registry Reusable Workflow
+
+permissions:
+  contents: 'read'
+  id-token: 'write'
+
+on:
+  workflow_call:
+    inputs:
+      app_name:
+        required: true
+        type: string
+      build_id:
+        required: true
+        type: string
+    secrets:
+      ARTIFACT_REGISTRY_HOST_NAME:
+        required: true
+      PROJECT_ID:
+        required: true
+      WI_POOL_PROVIDER_ID:
+        required: true
+      PACKAGER_GSA_ID:
+        required: true
+      IMAGE_REPO_ID:
+        required: true
+
+jobs:
+  build-and-push-docker-gar:
+    env:
+      OCI_REPO_NAME: "oci://${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }}/${{ secrets.PROJECT_ID }}/${{ secrets.IMAGE_REPO_ID }}/${{ inputs.app_name }}"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: '${{ secrets.WI_POOL_PROVIDER_ID }}'
+          service_account: '${{ secrets.PACKAGER_GSA_ID }}'
+          token_format: 'access_token'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: latest
+
+      - name: Login to GCP Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }} --quiet
+
+      - name: Build image
+        run: docker build -f infra/Dockerfile . -t ${{ env.IMAGE_NAME }}:${{ steps.prep.outputs.BUILD_ID }}
+
+      - name: Push image
+        run: docker push ${{ env.IMAGE_NAME }}:${{ inputs.build_id }}
+
+      - name: Tag image as latest
+        run: gcloud container images add-tag ${{ env.IMAGE_NAME }}:${{ inputs.build_id }} ${{ env.IMAGE_NAME }}:latest
