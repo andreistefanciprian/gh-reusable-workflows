@@ -1,5 +1,10 @@
 name: Push Container Image to DockerHub Reusable Workflow
 
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
 on:
   workflow_call:
     inputs:
