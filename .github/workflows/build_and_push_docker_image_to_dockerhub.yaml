@@ -39,6 +39,14 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    -
+      name: Extract metadata (tags, labels)
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ inputs.image_name }}
+      
     -
       name: Build and push
       id: build-and-push
@@ -50,6 +58,8 @@ jobs:
         tags: |
           ${{ inputs.image_name }}:${{ inputs.image_tag }}
           ${{ inputs.image_name }}:latest
+          ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
         provenance: true
         sbom: true
     -
