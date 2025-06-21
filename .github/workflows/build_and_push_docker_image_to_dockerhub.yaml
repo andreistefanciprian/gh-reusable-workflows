@@ -66,6 +66,6 @@ jobs:
       name: Publish image attestations
       uses: actions/attest-build-provenance@v1
       with:
-        subject-name: docker.io/${{ inputs.image_name }}:${{ inputs.image_tag }}
+        subject-name: docker.io/${{ inputs.image_name }}
         subject-digest: ${{ steps.build-and-push.outputs.digest }}
         push-to-registry: true
