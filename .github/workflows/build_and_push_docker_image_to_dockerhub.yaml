@@ -1,0 +1,73 @@
+name: Push Container Image to DockerHub Reusable Workflow
+
+# This workflow builds a Docker image, pushes it to Docker Hub, and publishes a provenance attestation.
+# It is designed to be used as a reusable workflow via workflow_call.
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        required: true
+        type: string
+      image_tag:
+        required: true
+        type: string
+      dockerhub_username:
+        required: true
+        type: string
+    secrets:
+      DOCKERHUB_TOKEN:
+        required: true
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    steps:
+    # Checkout the repository code
+    - name: Checkout
+      uses: actions/checkout@v4
+    # Set up QEMU for cross-platform builds
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+    # Set up Docker Buildx for advanced build capabilities
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    # Log in to Docker Hub using provided credentials
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ inputs.dockerhub_username }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    # Extract Docker image metadata (tags, labels)
+    - name: Extract metadata (tags, labels)
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ inputs.image_name }}
+    # Build and push the Docker image to Docker Hub, generating provenance and SBOM
+    - name: Build and push
+      id: build-and-push
+      uses: docker/build-push-action@v6
+      with:
+        push: true
+        context: .
+        file: ./infra/Dockerfile
+        tags: |
+          ${{ inputs.image_name }}:${{ inputs.image_tag }}
+          ${{ inputs.image_name }}:latest
+          ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        provenance: true
+        sbom: true
+    # Publish a provenance attestation for the built image
+    - name: Publish image attestations
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-name: docker.io/${{ inputs.image_name }}
+        subject-digest: ${{ steps.build-and-push.outputs.digest }}
+        push-to-registry: true
