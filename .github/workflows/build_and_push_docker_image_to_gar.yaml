@@ -112,6 +112,11 @@ jobs:
           provenance: ${{ inputs.provenance }}
           sbom: ${{ inputs.sbom }}
 
+      # Docker login to GAR for attestation
+      - name: Docker login to GAR for attestation
+        run: |
+          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }}
+
       # Publish a provenance attestation for the built image
       - name: Publish image attestations
         uses: actions/attest-build-provenance@v1
