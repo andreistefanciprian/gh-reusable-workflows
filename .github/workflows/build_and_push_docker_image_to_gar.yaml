@@ -76,7 +76,12 @@ jobs:
       # Configure Docker to authenticate to Google Artifact Registry
       - name: Configure Docker for GAR
         run: |
-          gcloud auth configure-docker ${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }} --quiet
+          gcloud auth configure-docker ${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }} --quiet --registries=${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }}
+
+      # Print Docker config for debugging
+      - name: Print Docker config
+        run: |
+          cat /home/runner/.docker/config.json
 
       # Extract Docker image metadata (tags, labels)
       - name: Extract metadata (tags, labels)
