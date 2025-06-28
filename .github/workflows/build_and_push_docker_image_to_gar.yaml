@@ -84,9 +84,9 @@ jobs:
             network=host
             image=moby/buildkit:latest
 
-      # - name: Configure Docker for GAR
-      #   run: |
-      #     gcloud auth configure-docker ${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }} --quiet
+      - name: Configure Docker for GAR
+        run: |
+          gcloud auth configure-docker ${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }} --quiet
 
       # Print Docker config for debugging
       - name: Print Docker config
