@@ -69,7 +69,7 @@ jobs:
       # Authenticate to Google Cloud using OIDC
       - name: Authenticate to Google Cloud
         id: auth
-        uses: google-github-actions/auth@v1
+        uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: '${{ secrets.WI_POOL_PROVIDER_ID }}'
           service_account: '${{ secrets.PACKAGER_GSA_ID }}'
@@ -84,19 +84,25 @@ jobs:
             network=host
             image=moby/buildkit:latest
 
-      - name: Configure Docker for GAR
-        run: |
-          gcloud auth configure-docker ${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }} --quiet
+      # - name: Configure Docker for GAR
+      #   run: |
+      #     gcloud auth configure-docker ${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }} --quiet
 
       # Print Docker config for debugging
       - name: Print Docker config
         run: |
           cat /home/runner/.docker/config.json
 
-      # Docker login to GAR for attestation
-      - name: Docker login to GAR for attestation
-        run: |
-          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }}
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }}
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+      # # Docker login to GAR for attestation
+      # - name: Docker login to GAR for attestation
+      #   run: |
+      #     gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }}
       # Print Docker config after docker login for debugging
       - name: Print Docker config after docker login
         run: |
@@ -142,7 +148,7 @@ jobs:
       # Publish a provenance attestation for the built image
       - name: Publish image attestations
         if: inputs.push == true && steps.build-and-push.outputs.digest != ''
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         env:
           DOCKER_CONFIG: /home/runner/.docker
         with:
