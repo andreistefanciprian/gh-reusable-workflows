@@ -78,7 +78,11 @@ jobs:
       # Set up Docker Buildx for advanced build capabilities
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
+        with:
+          driver: docker-container
+          driver-opts: |
+            network=host
+            image=moby/buildkit:latest
 
       - name: Configure Docker for GAR
         run: |
@@ -121,9 +125,23 @@ jobs:
           provenance: ${{ inputs.provenance }}
           sbom: ${{ inputs.sbom }}
 
+      # Debug step to check values
+      - name: Debug values for attestation
+        run: |
+          echo "IMAGE_NAME: ${{ env.IMAGE_NAME }}"
+          echo "build_id: ${{ inputs.build_id }}"
+          echo "digest: ${{ steps.build-and-push.outputs.digest }}"
+          echo "push: ${{ inputs.push }}"
+          echo "Full image reference: ${{ env.IMAGE_NAME }}:${{ inputs.build_id }}"
+          # Check if digest is empty
+          if [ -z "${{ steps.build-and-push.outputs.digest }}" ]; then
+            echo "WARNING: Image digest is empty! This will cause the attestation to fail."
+            echo "This can happen if push is set to false or the build failed."
+          fi
 
       # Publish a provenance attestation for the built image
       - name: Publish image attestations
+        if: inputs.push == true && steps.build-and-push.outputs.digest != ''
         uses: actions/attest-build-provenance@v1
         env:
           DOCKER_CONFIG: /home/runner/.docker
