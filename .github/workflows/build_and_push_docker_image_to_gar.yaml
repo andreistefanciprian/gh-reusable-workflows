@@ -110,10 +110,10 @@ jobs:
         run: |
           echo "Digest: ${{ steps.build-and-push.outputs.digest }}"
 
-      # Publish a provenance attestation for the built image
-      - name: Publish image attestations
-        uses: actions/attest-build-provenance@v2
-        with:
-          subject-name: ${{ env.IMAGE_NAME }}
-          subject-digest: ${{ steps.build-and-push.outputs.digest }}
-          push-to-registry: true
+      # # Publish a provenance attestation for the built image
+      # - name: Publish image attestations
+      #   uses: actions/attest-build-provenance@v2
+      #   with:
+      #     subject-name: ${{ env.IMAGE_NAME }}
+      #     subject-digest: ${{ steps.build-and-push.outputs.digest }}
+      #     push-to-registry: true
