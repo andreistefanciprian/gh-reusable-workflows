@@ -89,6 +89,15 @@ jobs:
         run: |
           cat /home/runner/.docker/config.json
 
+      # Docker login to GAR for attestation
+      - name: Docker login to GAR for attestation
+        run: |
+          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }}
+      # Print Docker config after docker login for debugging
+      - name: Print Docker config after docker login
+        run: |
+          cat /home/runner/.docker/config.json
+          
       # Extract Docker image metadata (tags, labels)
       - name: Extract metadata (tags, labels)
         id: meta
@@ -112,14 +121,6 @@ jobs:
           provenance: ${{ inputs.provenance }}
           sbom: ${{ inputs.sbom }}
 
-      # Docker login to GAR for attestation
-      - name: Docker login to GAR for attestation
-        run: |
-          gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }}
-      # Print Docker config after docker login for debugging
-      - name: Print Docker config after docker login
-        run: |
-          cat /home/runner/.docker/config.json
 
       # Publish a provenance attestation for the built image
       - name: Publish image attestations
@@ -127,6 +128,6 @@ jobs:
         env:
           DOCKER_CONFIG: /home/runner/.docker
         with:
-          subject-name: ${{ env.IMAGE_NAME }}:${{ inputs.build_id }}
+          subject-name: ${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.build-and-push.outputs.digest }}
           push-to-registry: true
