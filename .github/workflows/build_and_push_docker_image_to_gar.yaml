@@ -33,7 +33,7 @@ on:
       push:
         required: false
         type: boolean
-        default: true
+        default: 'true'
       labels:
         required: false
         type: string
