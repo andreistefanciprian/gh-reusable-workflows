@@ -30,10 +30,6 @@ on:
         required: false
         type: boolean
         default: true
-      push:
-        required: false
-        type: boolean
-        default: 'true'
       labels:
         required: false
         type: string
@@ -100,7 +96,7 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@v6
         with:
-          push: ${{ inputs.push }}
+          push: true
           context: ${{ inputs.context }}
           file: ${{ inputs.dockerfile }}
           tags: |
@@ -120,4 +116,4 @@ jobs:
         with:
           subject-name: ${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.build-and-push.outputs.digest }}
-          push-to-registry: ${{ inputs.push }}
+          push-to-registry: true
