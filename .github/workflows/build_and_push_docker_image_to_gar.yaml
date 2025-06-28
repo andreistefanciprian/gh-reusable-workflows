@@ -109,7 +109,6 @@ jobs:
           labels: ${{ inputs.labels }}
           provenance: ${{ inputs.provenance }}
           sbom: ${{ inputs.sbom }}
-          outputs: type=digest
 
       - name: Show build digest
         run: |
@@ -117,6 +116,7 @@ jobs:
 
       # Publish a provenance attestation for the built image
       - name: Publish image attestations
+        if: ${{ inputs.push }}
         uses: actions/attest-build-provenance@v2
         with:
           subject-name: ${{ env.IMAGE_NAME }}
