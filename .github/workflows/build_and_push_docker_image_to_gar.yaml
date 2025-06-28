@@ -54,7 +54,7 @@ jobs:
   build-and-push-docker-gar:
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: "${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }}/${{ secrets.PROJECT_ID }}/${{ secrets.IMAGE_REPO_ID }}/${{ inputs.app_name }}"
+      IMAGE_NAME: "australia-southeast2-docker.pkg.dev/effortless-city-458902-q8/cmek-container-images/go-demo-app"
     steps:
 
       # Configure Docker to authenticate to Google Artifact Registry
