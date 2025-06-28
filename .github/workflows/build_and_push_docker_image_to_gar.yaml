@@ -73,11 +73,6 @@ jobs:
         run: |
           gcloud auth configure-docker ${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }} --quiet
 
-      # Print Docker config for debugging
-      - name: Print Docker config
-        run: |
-          cat /home/runner/.docker/config.json
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -85,11 +80,6 @@ jobs:
           username: oauth2accesstoken
           password: ${{ steps.auth.outputs.access_token }}
           logout: true
-
-      # Print Docker config after docker login for debugging
-      - name: Print Docker config after docker login
-        run: |
-          cat /home/runner/.docker/config.json
 
       # Build and push the Docker image to Google Artifact Registry, generating provenance and SBOM
       - name: Build and push
