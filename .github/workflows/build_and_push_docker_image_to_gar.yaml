@@ -56,6 +56,12 @@ jobs:
     env:
       IMAGE_NAME: "${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }}/${{ secrets.PROJECT_ID }}/${{ secrets.IMAGE_REPO_ID }}/${{ inputs.app_name }}"
     steps:
+
+      # Configure Docker to authenticate to Google Artifact Registry
+      - name: Clean Docker config
+        run: |
+          rm -rf /home/runner/.docker
+
       # Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v4
@@ -73,10 +79,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Configure Docker to authenticate to Google Artifact Registry
-      - name: Clean Docker config
-        run: |
-          rm -rf /home/runner/.docker
 
       - name: Configure Docker for GAR
         run: |
