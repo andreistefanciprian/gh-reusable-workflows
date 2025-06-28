@@ -78,8 +78,14 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Configure Docker for GAR
+      # Configure Docker for GAR properly
+      - name: Fix Docker auth for GAR
         run: |
+          # First, ensure we are starting with a clean config
+          mkdir -p /home/runner/.docker
+          echo '{"credHelpers":{"${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }}":"gcloud"}}' > /home/runner/.docker/config.json
+          
+          # Configure Docker to use gcloud credential helper
           gcloud auth configure-docker ${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }} --quiet
 
       # Print Docker config for debugging
@@ -87,19 +93,17 @@ jobs:
         run: |
           cat /home/runner/.docker/config.json
 
-      - name: Login to GitHub Container Registry
+      # Explicit login for both Docker and attestation to use
+      - name: Login to Google Artifact Registry
+        id: login
         uses: docker/login-action@v3
         with:
           registry: ${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }}
           username: oauth2accesstoken
           password: ${{ steps.auth.outputs.access_token }}
-          logout: true
-      # # Docker login to GAR for attestation
-      # - name: Docker login to GAR for attestation
-      #   run: |
-      #     gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://${{ secrets.ARTIFACT_REGISTRY_HOST_NAME }}
-      # Print Docker config after docker login for debugging
-      - name: Print Docker config after docker login
+
+      # Print Docker config after login for debugging
+      - name: Print Docker config after login
         run: |
           cat /home/runner/.docker/config.json
 
@@ -118,10 +122,15 @@ jobs:
           provenance: ${{ inputs.provenance }}
           sbom: ${{ inputs.sbom }}
 
-      # Publish a provenance attestation for the built image
+      # Publish a provenance attestation for the built image with custom token
       - name: Publish image attestations
+        if: inputs.push == true
         uses: actions/attest-build-provenance@v2
+        env:
+          DOCKER_CONFIG: /home/runner/.docker
         with:
           subject-name: ${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.build-and-push.outputs.digest }}
-          push-to-registry: ${{ inputs.push }}
+          push-to-registry: true
+          registry-username: oauth2accesstoken
+          registry-password: ${{ steps.auth.outputs.access_token }}
