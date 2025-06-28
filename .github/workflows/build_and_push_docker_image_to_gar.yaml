@@ -127,6 +127,6 @@ jobs:
         env:
           DOCKER_CONFIG: /home/runner/.docker
         with:
-          subject-name: ${{ env.IMAGE_NAME }}
+          subject-name: australia-southeast2-docker.pkg.dev/effortless-city-458902-q8/cmek-container-images/go-demo-app
           subject-digest: ${{ steps.build-and-push.outputs.digest }}
           push-to-registry: true
