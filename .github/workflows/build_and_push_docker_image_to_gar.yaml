@@ -18,7 +18,7 @@ on:
         required: false
         type: string
         default: .
-      file:
+      dockerfile:
         required: false
         type: string
         default: Dockerfile
@@ -92,7 +92,7 @@ jobs:
         with:
           push: ${{ inputs.push }}
           context: ${{ inputs.context }}
-          file: ${{ inputs.file }}
+          file: ${{ inputs.dockerfile }}
           tags: |
             ${{ env.IMAGE_NAME }}:${{ inputs.build_id }}
             ${{ env.IMAGE_NAME }}:latest
