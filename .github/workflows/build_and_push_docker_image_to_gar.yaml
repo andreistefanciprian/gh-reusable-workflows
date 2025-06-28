@@ -14,6 +14,30 @@ on:
       build_id:
         required: true
         type: string
+      context:
+        required: false
+        type: string
+        default: .
+      file:
+        required: false
+        type: string
+        default: Dockerfile
+      sbom:
+        required: false
+        type: boolean
+        default: true
+      provenance:
+        required: false
+        type: boolean
+        default: true
+      push:
+        required: false
+        type: boolean
+        default: true
+      labels:
+        required: false
+        type: string
+        default: ''
     secrets:
       ARTIFACT_REGISTRY_HOST_NAME:
         required: true
@@ -66,16 +90,16 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@v6
         with:
-          push: true
-          context: .
-          file: ./infra/Dockerfile
+          push: ${{ inputs.push }}
+          context: ${{ inputs.context }}
+          file: ${{ inputs.file }}
           tags: |
             ${{ env.IMAGE_NAME }}:${{ inputs.build_id }}
             ${{ env.IMAGE_NAME }}:latest
             ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          provenance: true
-          sbom: true
+          labels: ${{ inputs.labels || steps.meta.outputs.labels }}
+          provenance: ${{ inputs.provenance }}
+          sbom: ${{ inputs.sbom }}
 
       # Publish a provenance attestation for the built image
       - name: Publish image attestations
