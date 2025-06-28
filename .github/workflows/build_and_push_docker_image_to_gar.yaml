@@ -104,6 +104,8 @@ jobs:
       # Publish a provenance attestation for the built image
       - name: Publish image attestations
         uses: actions/attest-build-provenance@v1
+        env:
+          DOCKER_CONFIG: /home/runner/.docker
         with:
           subject-name: ${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.build-and-push.outputs.digest }}
