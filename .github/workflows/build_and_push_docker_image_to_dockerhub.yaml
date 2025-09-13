@@ -20,6 +20,14 @@ on:
       dockerhub_username:
         required: true
         type: string
+      context:
+        required: false
+        type: string
+        default: .
+      file:
+        required: false
+        type: string
+        default: ./infra/Dockerfile
     secrets:
       DOCKERHUB_TOKEN:
         required: true
@@ -55,8 +63,8 @@ jobs:
       uses: docker/build-push-action@v6
       with:
         push: true
-        context: .
-        file: ./infra/Dockerfile
+        context: ${{ inputs.context }}
+        file: ${{ inputs.file }}
         tags: |
           ${{ inputs.image_name }}:${{ inputs.image_tag }}
           ${{ inputs.image_name }}:latest
