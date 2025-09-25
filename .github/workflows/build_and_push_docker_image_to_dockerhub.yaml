@@ -38,7 +38,7 @@ jobs:
     steps:
     # Checkout the repository code
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     # Set up QEMU for cross-platform builds
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
