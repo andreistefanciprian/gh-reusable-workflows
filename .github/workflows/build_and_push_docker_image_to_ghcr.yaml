@@ -90,7 +90,7 @@ jobs:
           file: ${{ inputs.file }}
           tags: |
             ${{ inputs.image_name }}:${{ inputs.image_tag }}
-            ${{ inputs.push_latest && format('{0}:latest', inputs.image_name) }}
+            ${{ inputs.push_latest && format('{0}:latest', inputs.image_name) || '' }}
             ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           # Disable built-in provenance and SBOM generation; we use anchore/sbom-action
