@@ -130,7 +130,7 @@ jobs:
         run: |
           cosign sign --yes "${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
 
-      - name: Generate SBOM file
+      - name: Generate and Upload SBOM file
         if: ${{ inputs.cosign_attest_sbom }}
         uses: anchore/sbom-action@v0
         with:
