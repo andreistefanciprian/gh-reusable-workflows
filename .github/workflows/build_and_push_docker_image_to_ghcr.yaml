@@ -138,13 +138,6 @@ jobs:
           format: spdx-json
           output-file: sbom.spdx.json
 
-      - name: Upload SBOM artifact
-        if: ${{ inputs.cosign_attest_sbom }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: sbom-spdx-json
-          path: sbom.spdx.json
-
       - name: Cosign attest SBOM
         if: ${{ inputs.cosign_attest_sbom }}
         env:
