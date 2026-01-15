@@ -132,7 +132,7 @@ jobs:
 
       - name: Generate and Upload SBOM file
         if: ${{ inputs.cosign_attest_sbom }}
-        uses: anchore/sbom-action@v0
+        uses: anchore/sbom-action@v0.21.0
         with:
           image: ${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}
           format: spdx-json
