@@ -121,12 +121,13 @@ jobs:
 
       - name: Install Cosign
         if: ${{ inputs.cosign_sign || inputs.cosign_attest_sbom }}
-        uses: sigstore/cosign-installer@v3
+        uses: sigstore/cosign-installer@v4.0.0
+      - name: Check Cosign install!
+        if: ${{ inputs.cosign_sign || inputs.cosign_attest_sbom }}
+        run: cosign version
 
       - name: Cosign sign image digest keyless
         if: ${{ inputs.cosign_sign }}
-        env:
-          COSIGN_EXPERIMENTAL: "true"
         run: |
           cosign sign --yes "${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
 
@@ -140,7 +141,5 @@ jobs:
 
       - name: Cosign attest SBOM
         if: ${{ inputs.cosign_attest_sbom }}
-        env:
-          COSIGN_EXPERIMENTAL: "true"
         run: |
           cosign attest --yes --type spdxjson --predicate sbom.spdx.json "${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
