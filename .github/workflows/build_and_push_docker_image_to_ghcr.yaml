@@ -131,7 +131,17 @@ jobs:
       - name: Cosign sign image digest keyless
         if: ${{ inputs.cosign_sign }}
         run: |
+          echo "Signing image: ${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
           cosign sign --yes "${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
+          echo "Signature pushed successfully"
+
+      - name: Verify Cosign signature
+        if: ${{ inputs.cosign_sign }}
+        run: |
+          cosign verify \
+            --certificate-identity-regexp "https://github.com/andreistefanciprian/.+" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            "${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
 
       - name: Generate and Upload SBOM file
         if: ${{ inputs.cosign_attest_sbom }}
