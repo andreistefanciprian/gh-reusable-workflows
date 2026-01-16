@@ -131,7 +131,9 @@ jobs:
       - name: Cosign sign image digest keyless
         if: ${{ inputs.cosign_sign }}
         run: |
-          cosign sign --yes "${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
+          echo "Signing image: ${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
+          cosign sign --yes --verbose=true --registry-referrers-mode=oci-1-1 "${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
+          echo "Signature pushed successfully"
 
       - name: Verify Cosign signature
         if: ${{ inputs.cosign_sign }}
