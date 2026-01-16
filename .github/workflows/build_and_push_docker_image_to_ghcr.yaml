@@ -133,6 +133,14 @@ jobs:
         run: |
           cosign sign --yes "${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
 
+      - name: Verify Cosign signature
+        if: ${{ inputs.cosign_sign }}
+        run: |
+          cosign verify \
+            --certificate-identity-regexp "https://github.com/andreistefanciprian/.+" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            "${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
+
       - name: Generate and Upload SBOM file
         if: ${{ inputs.cosign_attest_sbom }}
         uses: anchore/sbom-action@v0.21.0
@@ -145,3 +153,12 @@ jobs:
         if: ${{ inputs.cosign_attest_sbom }}
         run: |
           cosign attest --yes --type spdxjson --predicate sbom.spdx.json "${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
+
+      - name: Verify Cosign SBOM attestation
+        if: ${{ inputs.cosign_attest_sbom }}
+        run: |
+          cosign verify-attestation \
+            --certificate-identity-regexp "https://github.com/andreistefanciprian/.+" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            --type spdxjson \
+            "${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
