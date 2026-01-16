@@ -132,7 +132,7 @@ jobs:
         if: ${{ inputs.cosign_sign }}
         run: |
           echo "Signing image: ${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
-          cosign sign --yes --verbose=true "${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
+          cosign sign --yes "${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
           echo "Signature pushed successfully"
 
       - name: Verify Cosign signature
