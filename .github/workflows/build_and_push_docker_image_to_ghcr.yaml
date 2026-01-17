@@ -139,6 +139,8 @@ jobs:
 
       - name: Verify Cosign signature
         if: ${{ inputs.cosign_sign }}
+        env:
+          COSIGN_REPOSITORY: ghcr.io/andreistefanciprian/cosign-signatures
         run: |
           cosign verify \
             --certificate-identity-regexp "https://github.com/andreistefanciprian/.+" \
