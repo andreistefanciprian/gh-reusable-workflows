@@ -157,5 +157,7 @@ jobs:
 
       - name: Cosign attest SBOM
         if: ${{ inputs.cosign_attest_sbom }}
+        env:
+          COSIGN_REPOSITORY: ghcr.io/andreistefanciprian/cosign-signatures
         run: |
           cosign attest --yes --type spdxjson --predicate sbom.spdx.json "${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
