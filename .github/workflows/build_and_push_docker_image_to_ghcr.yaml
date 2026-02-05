@@ -123,7 +123,7 @@ jobs:
 
       - name: Install Cosign
         if: ${{ inputs.cosign_sign || inputs.cosign_attest_sbom }}
-        uses: sigstore/cosign-installer@v3.10.1
+        uses: sigstore/cosign-installer@v4.0.0
       - name: Check Cosign install!
         if: ${{ inputs.cosign_sign || inputs.cosign_attest_sbom }}
         run: cosign version
@@ -132,7 +132,6 @@ jobs:
         if: ${{ inputs.cosign_sign }}
         env:
           COSIGN_REPOSITORY: ghcr.io/andreistefanciprian/cosign-signatures
-          COSIGN_EXPERIMENTAL: "true"
         run: |
           echo "Signing image: ${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
           cosign sign --yes "${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
@@ -160,6 +159,5 @@ jobs:
         if: ${{ inputs.cosign_attest_sbom }}
         env:
           COSIGN_REPOSITORY: ghcr.io/andreistefanciprian/cosign-signatures
-          COSIGN_EXPERIMENTAL: "true"
         run: |
           cosign attest --yes --type spdxjson --predicate sbom.spdx.json "${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}"
