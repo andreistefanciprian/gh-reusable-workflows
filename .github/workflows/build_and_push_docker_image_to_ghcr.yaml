@@ -154,6 +154,7 @@ jobs:
           image: ${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}
           format: spdx-json
           output-file: sbom.spdx.json
+          upload-release-assets: false
 
       - name: Cosign attest SBOM
         if: ${{ inputs.cosign_attest_sbom }}
