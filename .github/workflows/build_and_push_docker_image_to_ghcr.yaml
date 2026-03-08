@@ -44,6 +44,10 @@ on:
         required: false
         type: boolean
         default: true
+      trivy_scan:
+        required: false
+        type: boolean
+        default: true
     outputs:
       image_digest:
         description: Image digest
@@ -105,6 +109,7 @@ jobs:
           echo "image_with_digest=${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}" >> "$GITHUB_OUTPUT"
 
       - name: Trivy scan
+        if: ${{ inputs.trivy_scan }}
         uses: aquasecurity/trivy-action@0.24.0
         with:
           image-ref: ${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}
