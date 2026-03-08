@@ -28,11 +28,11 @@ on:
         required: false
         type: boolean
         default: false
-      scan_severity:
+      trivy_scan_severity:
         required: false
         type: string
         default: CRITICAL,HIGH
-      ignore_unfixed:
+      trivy_ignore_unfixed:
         required: false
         type: boolean
         default: true
@@ -115,8 +115,8 @@ jobs:
           image-ref: ${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}
           format: table
           exit-code: "1"
-          severity: ${{ inputs.scan_severity }}
-          ignore-unfixed: ${{ inputs.ignore_unfixed }}
+          severity: ${{ inputs.trivy_scan_severity }}
+          ignore-unfixed: ${{ inputs.trivy_ignore_unfixed }}
 
       - name: Publish build provenance attestation
         uses: actions/attest-build-provenance@v1
