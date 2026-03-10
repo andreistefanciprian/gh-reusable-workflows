@@ -119,7 +119,7 @@ jobs:
           ignore-unfixed: ${{ inputs.trivy_ignore_unfixed }}
 
       - name: Publish build provenance attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v4
         with:
           subject-name: ${{ inputs.image_name }}
           subject-digest: ${{ steps.build-and-push.outputs.digest }}
