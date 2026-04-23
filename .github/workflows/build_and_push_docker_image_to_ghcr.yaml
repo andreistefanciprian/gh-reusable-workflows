@@ -110,7 +110,7 @@ jobs:
 
       - name: Trivy scan
         if: ${{ inputs.trivy_scan }}
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@0.36.0
         with:
           image-ref: ${{ inputs.image_name }}@${{ steps.build-and-push.outputs.digest }}
           format: table
